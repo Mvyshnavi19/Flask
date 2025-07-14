@@ -1,0 +1,93 @@
+Refer official web page : https://flask.palletsprojects.com/en/stable/
+
+What is Flask:
+Flask is lightweight backend web framework written in python. It helps in building web application and handles https request,manages routing and interact with database. If user submit data through frontend (UI) then flask process the data check business rules and interact with databases if needed and respond with a new webpage or JSON.
+
+Installation : 
+
+Creating a virtual env:
+Isolate dependencies between projects.
+Avoid version conflicts
+Share the dependencies through requirements.txt
+
+mkdir flask_project -> create a folder for your project
+Cd flask_project -> change dir to your project
+Python -m venv venv_flask_project 
+ -m -> run venv module as script
+venv_flask_project -> name of the folder where venv is created
+ Inside venv_flask_project folder, subfolders will be created bin(mac/linux) and Source (windows)
+
+Activate venv:
+Windows : venv_flask_project\Scripts\activate
+Linux/macOS : source venv_flask_project/bin/activate
+After activating env, install flask : pip install flask
+
+A minimal application : 
+
+from flask import Flask  # importing Flask class from flask package
+app = Flask(‘__name__’) # creating a flask instance and passing __name__ as argument to constructor.Flask uses  __name__ value to identify where it is running from, to get relative paths and find app resources (templates and static files)
+@app.route(‘/’)  # route tells which function needs to called based on url path
+def hello():
+    return “Hello World”;
+if __name__==’__main__’: # This block will make sure that flask application will run only when this file is executed directly and not when it is imported as module in another files.
+    app.run(debug=True)
+Note : The variable which holds the flask app , the same name should be used with decorators (.route(‘/’))
+
+How to run flask application : 
+ when we have if __name__==”__main__”:
+ use : python app.py
+else:
+flask - - app hello run # assuming we have hello.py file  
+Note :  if the file is named app.py or wsgi.py, you don’t have to use --app. directly use flask run.
+By default our application will run on local host : 127.0.0.1:5000
+If we want the host use flask - - app hello run - - host = 0.0.0.0 This tells your operating system to listen on all public IPs.
+By enabling - - debug mode, server will automatically reload code changes.
+
+HTML Escaping : 
+Any user provided values rendered in the output must be escaped to avoid injection attacks.
+
+from markupsafe import escape
+@app.route(‘/<name>’): 
+def greeting(name):
+    return f’Hi,{escape(name)}’;
+
+If we are using jinja2 templates, this will automatically espaces variables while rendering, so we don’t have to escape variables externally. by default flask uses jinja2 template.
+
+Route() : we can use route decorator to bind function with url. We can have multiple decorators for one function but vice versa is not crt.
+
+Variables : 
+we can add variables to url using <variable_name> and function can take this variable_name as argument and we can specify the type of these variables using convertors <convertor:varaible_name>. There are 5 types of converters:
+string : default (‘/’ is not accepted in the variable)
+int
+float
+path : it is string, but can contain slash (/)
+uuid : accept uuid string
+
+from flask import request
+we can read the argument passed in url using request.args -> which returns a dict
+where args[0] = 
+ex: https:0.0.0.0:5050/login/name=bkcbfjbe&password=bjsvbslb
+
+route method actually only support get request, to make it support other request pass method argument to route decorator
+
+@app.route(‘/login’) -> only supports get
+@app.route(‘/login’,method=[‘POST’]) -> only supports POST
+@app.route(‘/login’,method=[‘POST’,’GET’]) -> supports Both
+
+GET -> to get information(give info to user)
+POST -> to submit information/ to create info
+PUT -> update information
+DELETE -> to delete
+
+How to return based on request type:
+@app.route(‘/login’,method=[‘POST’,’GET’]) 
+def login():
+    if request.method==’GET’:
+         return ‘You made a get request’
+    elif request.method==’POST’:
+        return  ‘You made a post request’
+
+Templates & HTML :  
+Instead of passing string as output we can render html pages, for that we should create a folder templates in our project directory and here we can add any no of html files. 
+In our flask instance should add template_folder argument which takes the path of the templates folder.
+app = Flask(‘__name__’,template_folder=’templates’)
